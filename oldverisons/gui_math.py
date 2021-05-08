@@ -15,17 +15,12 @@ from PIL import ImageTk, Image
 class Math:
     def __init__(self, master=None):     
         self.master = master
-        self.start_thread_timer_2 = None
-        
         self.set_window()
         self.pre_config()
         self.settings_menu()
         self.pre_load_widgets()
         self.config()
         self.start_menu()
-        
-    def set_thread_timer(self, thread_func):
-        self.start_thread_timer_2 = thread_func
         
     def set_window(self):
         self.master.title('Математика')
@@ -114,13 +109,13 @@ class Math:
         variable=self.infinity_value, font='Tahoma 10')
         self.infinity_time.pack(padx=5)
         
-        self.settings_frame_3 = LabelFrame(text='Количество чисел\nв примере', font='Tahoma 16 bold', fg='#1E90FF')
-        self.count_nums_entry = Entry(self.settings_frame_3, font='Tahoma 10', justify=CENTER)
+        self.settings_frame_3 = LabelFrame(text='Кол-во чисел в примере', font='Tahoma 16')
+        self.count_nums_entry = Entry(self.settings_frame_3, font='Tahoma 10')
         self.count_nums_entry.insert(0, '3')
         self.count_nums_entry.pack()
         
-        self.settings_frame_4 = LabelFrame(text='Количествово чисел\nпосле запятой', font='Tahoma 16 bold', fg='#5D76CB')
-        self.nums_after_zap = Entry(self.settings_frame_4, font='Tahoma 10', justify=CENTER)
+        self.settings_frame_4 = LabelFrame(text='Количество цифр после запятой', font='Tahoma 16')
+        self.nums_after_zap = Entry(self.settings_frame_4, font='Tahoma 10')
         self.nums_after_zap.insert(0, '2')
         self.nums_after_zap.pack()
         
@@ -157,7 +152,7 @@ class Math:
         
     def show_restart_menu(self, *event):
         self.config()
-        self.finish.pack(expand=1)
+        self.finish.place(x=100,y=200)
         self.restart_btn.place(x=300,y=350)
         self.hide_settings()
         
@@ -165,7 +160,7 @@ class Math:
         
     def hide_restart_menu(self, *event):
         self.restart_btn.place_forget()
-        self.finish.pack_forget()
+        self.finish.place_forget()
         
         self.settings(1)
         
@@ -177,8 +172,8 @@ class Math:
         self.settings_frame_0.place(x=100, y=30)
         self.settings_frame_1.place(x=315, y=30)
         self.settings_frame_2.place(x=478, y=30)
-        self.settings_frame_3.place(x=100, y=150)
-        self.settings_frame_4.place(x=322, y=150)
+        #self.settings_frame_3.place(x=100, y=75)
+        #self.settings_frame_4.place(x=450, y=20)
         
     def hide_settings(self, *event):
         self.settings_frame_0.place_forget()
@@ -189,14 +184,10 @@ class Math:
         
     def start_math(self):
         self.task_label.config(text=self.get_task(self.count_nums))
+        
         self.set_widgets()
         if self.infinity_value.get() == 0:
-            if self.start_thread_timer_2 != None:
-                print('Запуск фейк потока')
-                self.start_thread_timer_2()
-            else:
-                print('Запуск ориг потока')
-                self.start_thread_timer()
+            self.start_thread_timer()
         
         self.start_btn.pack_forget()
         self.settings_btn.place_forget()
@@ -210,7 +201,7 @@ class Math:
         self.task_label.config(bg='lightgreen', fg='black')
         
         if self.infinity_value.get() == 0: self.timer_label.place(x=725,y=5)
-        else: self.timer_label.place(x=15,y=5)
+        else: self.timer_label.place(x=0.75,y=0.075)
             
     def start_thread_timer(self):
         self.target = Thread(target=self.start_timer)
@@ -222,7 +213,7 @@ class Math:
         self.answers = []
         
         self.restart_btn.place_forget()
-        self.finish.pack_forget()
+        self.finish.place_forget()
         self.settings_btn.place_forget()
         
         self.answer_input['state'] = NORMAL
@@ -231,22 +222,13 @@ class Math:
         self.answer_input.delete(0, END)
         
         self.answer_input.place(x=275,y=270)
-        
-        self.task_label.config(bg='#f0f0f0', fg='#f0f0f0')
         self.task_label.place(x=275,y=130)
-        self.master.update()
-        self.task_label.place(x=275+(210-self.task_label.winfo_width())/2,y=130)
-        self.task_label.config(bg='lightgreen', fg='black')
+        self.timer_label.config(text=str(self.start_seconds))
+        self.timer_label.place(x=725,y=5)
         
-        if self.infinity_value.get() == 1:
-             self.timer_label.config(text='Бесконечное время')
-             self.timer_label.place(x=15,y=5)
-        else:
-            self.timer_label.config(text=str(self.start_seconds))
-            self.timer_label.place(x=725,y=5)
-            
         if self.infinity_value.get() == 1:
             self.stop_btn.pack(side=RIGHT)
+            
         else:
             self.start_thread_timer()
         
@@ -259,13 +241,11 @@ class Math:
         self.answer_input['state'] = DISABLED
         self.answer_input.place_forget()
         self.task_label.place_forget()
-        
-        self.timer_label.pack_forget()
         self.timer_label.place_forget()
             
         self.finish.config(text=self.get_statics())
         
-        self.finish.pack(expand=1)
+        self.finish.place(x=100,y=200)
         self.restart_btn.place(x=300,y=350)
         
         self.settings_btn['command'] = self.hide_restart_menu
@@ -274,12 +254,15 @@ class Math:
         if self.infinity_value.get() == 1:
             self.stop_btn.pack_forget()
         
-        print('[MATH]'.join(i + '\n' for i in self.answers))
+        print(''.join(i + '\n' for i in self.answers))
         
     def update_timer(self):
         seconds = int(self.timer_label['text'])
         if seconds == 0:
-            self.end_timer()
+            try:
+                self.end_timer()
+            except:
+                pass
         else:
             colors = ['green', 'orange', '#f80000']
             color = int((seconds-1)/ceil(self.start_seconds / len(colors)))+1
@@ -305,19 +288,17 @@ class Math:
                 text += 'Всего попыток: {}\n'.format(self.taws + self.faws)
         else:
             if self.infinity_value.get() == 0: 
-                text = 'Вы не решили ни один пример за {} секунд\n'.format(self.start_seconds)
-                text += 'Всего попыток: {}\n'.format(self.taws + self.faws)
+                text = 'Вы не решили ни один пример за {} секунд'.format(self.start_seconds)
             else:
-                text = 'Вы не решили ни один пример\n'
-                text += 'Всего попыток: {}\n'.format(self.taws + self.faws)
+                text = 'Вы не решили ни один пример'
         
         return text
         
     def check_answer(self, *event):
         try:
-            user_answer = float(self.answer_input.get())
+            user_answer = self.answer_input.get()
             if float(user_answer) == self.answer or int(user_answer) == self.answer:
-                print('[MATH]Правильный ответ!', self.task, self.answer)
+                print('Правильный ответ!', self.task, self.answer)
                 self.task_label.config(text=self.get_task(self.count_nums))
                 
                 self.master.update()
@@ -327,10 +308,10 @@ class Math:
                 self.answer_input.delete(0, END)
                 self.taws += 1
             else:
-                print('[MATH]Неправильный ответ!')
+                print('Неправильный ответ!')
                 self.faws += 1
         except ValueError as e:
-            print('[MATH]Ошибка в вводе!')
+            print('Ошибка в вводе!')
         
     def get_task(self, n=3):
         task = "";
@@ -342,15 +323,11 @@ class Math:
         self.task = self.check_task(task)
         self.answer = eval(self.task)
         if '/' in self.arithmetics:
-            if type(self.answer) == float:
+            if type(self.answer == float):
                 dot = str(self.answer).find('.')
-                self.answer = float(str(self.answer)[:1+dot + int(self.nums_after_zap.get())])
-        if int(self.answer) == float(self.answer):
-            self.answer = int(self.answer)
-        else:
-            self.answer = float(self.answer)
+                self.answer = str(self.answer)[:dot + int(self.nums_after_zap.get())]
         self.answers.append('Пример: {} Ответ: {}'.format(self.task, self.answer))
-        print('[MATH]Пример:', self.task)
+        print('Пример:', self.task)
         return self.task
         
     def check_task(self, task):
@@ -369,9 +346,6 @@ class Math:
                     find = False
                     
         return task[:-1] if task[-1] != ')' else task
-        
-    def destroy(self):
-        self.master.destroy()
 
     def closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
@@ -381,32 +355,13 @@ class Math:
         self.master.protocol("WM_DELETE_WINDOW", self.closing)
         self.master.mainloop()
         
-class MathCMD():
-    def __init__(self,  base):
-        self.base = base
+root = Tk()
+app = Math(root)
         
-    def get_answer(self):
-        answer = self.base.answer
-        print('[MATHCMD]Ответ на пример: {}'.format(answer))
-    
-    def skip_task(self):
-        self.base.task_label.config(text=self.base.get_task(self.base.count_nums))
-        self.base.master.update()
-        
-        width = self.base.task_label.winfo_width()
-        self.base.task_label.place(x=275+(210-width)/2, y=130)
-                
-        self.base.answer_input.delete(0, END)
-        
-        print('[MATHCMD]Пример пропущен')
-        
-    def stop_decide(self):
-        self.base.end_timer()
-        
-        
-def run_app():
-    root = Tk()
-    app = Math(root)
-    return app
+if __name__ == '__main__':
+    try:
+        app.mainloop()
+    except:
+        pass
 
 
